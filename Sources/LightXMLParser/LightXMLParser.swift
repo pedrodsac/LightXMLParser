@@ -1,11 +1,21 @@
 import Foundation
 
 public enum ParseError: Error {
-    case unexpectedError
+	case unexpectedError
 }
 
-public class XML {
+public class XML: Codable, Hashable {
     
+	public func hash(into hasher: inout Hasher) {
+		return hasher.combine(id)
+	}
+	
+	public static func == (lhs: XML, rhs: XML) -> Bool {
+		return lhs.id == rhs.id
+	}
+	
+	private var id: UUID = UUID()
+	
     public var name: String
     public var attributes: [String:String] = [:]
     public var value: String = ""
@@ -26,7 +36,7 @@ public class XML {
         self.addAttributes(attributes)
     }
     
-    public convenience init(data: Data) throws {
+	public convenience init(data: Data) throws {
         let parser = LightXMLParser(data: data)
         parser.parse()
         guard let xml = parser.root else { throw ParseError.unexpectedError }
